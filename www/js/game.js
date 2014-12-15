@@ -511,7 +511,7 @@ var game = {
      * Обработчик пропуска хода
      */
     skipTurn: function () {
-        if (this.blockHandle) return;
+        if (this.blockHandle || this.level >= this.allowSkipTurnMaxLevel) return;
         this.afterUserTurn();
     }
 };
