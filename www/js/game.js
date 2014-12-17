@@ -321,6 +321,7 @@ var game = {
         if (nextKolobok) {
             current.current = false;
             nextKolobok.current = true;
+            this.blockHandle = false;
             this.view.updateCell(current.cell, current);
             this.view.updateCell(nextKolobok.cell, nextKolobok);
         }
@@ -353,7 +354,7 @@ var game = {
      */
     nextTurn: function () {
         this.clearTurn();
-        this.resetCurrent();
+        this.resetCurrent(false);
         this.enemyKolobokTurn();
     },
 
@@ -380,6 +381,7 @@ var game = {
 
         if (!kolobok) {
             this.blockHandle = false;
+            this.resetCurrent(true);
             return;
         }
 
@@ -480,7 +482,7 @@ var game = {
         var current;
 
         if (!game.kolobki.getCurrent()) {
-            current = game.resetCurrent();
+            current = game.resetCurrent(true);
 
             if (!current) {
                 alert('Вы проиграли!');
@@ -494,14 +496,20 @@ var game = {
 
     /**
      * Устанавливает текущего колобка заново
+     * @param {Boolean} updateView
      * @return {Kolobok}
      */
-    resetCurrent: function () {
+    resetCurrent: function (updateView) {
+        if (typeof updateView == 'undefined') {
+            updateView = true;
+        }
         var kolobok = this.kolobki.getFirstUser();
 
         if (kolobok) {
             kolobok.current = true;
-            game.view.updateCell(kolobok.cell, kolobok);
+            if (updateView) {
+                game.view.updateCell(kolobok.cell, kolobok);
+            }
         }
 
         return kolobok;
