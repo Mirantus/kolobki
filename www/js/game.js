@@ -175,6 +175,8 @@ var game = {
         if (this.blockHandle || !this.isAllowMove(kolobok, cell)) {
             return;
         }
+
+        this.blockHandle = true;
         this.moveToCell(kolobok, cell, this.afterUserTurn);
     },
 
@@ -249,7 +251,8 @@ var game = {
     moveToCell: function (kolobok, cell, callback) {
         var cellKolobok,
             interact = false,
-            oldCell = {col: kolobok.cell.col, row: kolobok.cell.row};
+            oldCell = {col: kolobok.cell.col, row: kolobok.cell.row},
+            timeout = 200;
 
 
         cellKolobok = this.kolobki.getCellKolobok(cell);
@@ -262,11 +265,9 @@ var game = {
         this.view.clearCell(oldCell);
         this.view.updateCell(cell, kolobok);
 
-        if (interact) {
-            setTimeout(this.afterMoveToCell.bind(this, kolobok, callback), 1000);
-        } else {
-            this.afterMoveToCell(kolobok, callback)
-        }
+        if (kolobok.type == 'user') timeout = 0;
+        if (interact) timeout = 1000;
+        setTimeout(this.afterMoveToCell.bind(this, kolobok, callback), timeout);
     },
 
     /**
@@ -334,7 +335,6 @@ var game = {
         if (!this.kolobki.countEnemies()) {
             this.win();
         } else {
-            this.blockHandle = true;
             setTimeout(this.nextTurn.bind(this), 500);
         }
     },
@@ -369,8 +369,6 @@ var game = {
                 game.view.updateCell(kolobok.cell, kolobok);
             }
         });
-
-        this.blockHandle = false;
     },
 
     /**
@@ -381,12 +379,14 @@ var game = {
             kolobok = this.kolobki.getNotTurnedEnemy();
 
         if (!kolobok) {
+            this.blockHandle = false;
             return;
         }
 
         // каждый десятый ход вражеский колобок пропускает
         if (!rand(0, 10)) {
             kolobok.turned = true;
+            this.afterEnemyTurn();
             return;
         }
 
